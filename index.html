@@ -394,6 +394,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('attendanceGenderChart', 'กราฟเปรียบเทียบเข้าเรียนชายหญิง')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('attendanceGenderChart', 'กราฟเปรียบเทียบเข้าเรียนชายหญิง')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('attendanceGenderChart', 'กราฟเปรียบเทียบเข้าเรียนชายหญิง')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="attendanceGenderChart" style="max-height: 300px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -407,6 +408,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('attendanceChart', 'กราฟการเข้าเรียน')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('attendanceChart', 'กราฟการเข้าเรียน')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('attendanceChart', 'กราฟการเข้าเรียน')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="attendanceChart" style="max-height: 400px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -420,6 +422,7 @@
                     <div>
                         <button class="btn-success" onclick="exportCustom('attendance', 'รายงานการเข้าเรียน', 'excel')">📊 Excel</button>
                         <button class="btn-primary" onclick="exportCustom('attendance', 'รายงานการเข้าเรียน', 'word')">📝 Word</button>
+                        <button class="btn-danger" style="background:#c0392b;" onclick="exportCustom('attendance', 'รายงานการเข้าเรียน', 'pdf')">📄 ส่งออก PDF</button>
                     </div>
                     <button class="btn-danger" style="background:#c0392b;" onclick="clearAllAttendance()">🗑️ ล้างประวัติเข้าเรียนทั้งหมด</button>
                 </div>
@@ -447,6 +450,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('assignmentGenderChart', 'กราฟเปรียบเทียบส่งงานชายหญิง')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('assignmentGenderChart', 'กราฟเปรียบเทียบส่งงานชายหญิง')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('assignmentGenderChart', 'กราฟเปรียบเทียบส่งงานชายหญิง')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="assignmentGenderChart" style="max-height: 300px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -467,6 +471,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('assignmentChart', 'กราฟการส่งงานรายบุคคล')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('assignmentChart', 'กราฟการส่งงานรายบุคคล')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('assignmentChart', 'กราฟการส่งงานรายบุคคล')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="assignmentChart" style="max-height: 400px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -501,6 +506,7 @@
                     <div>
                         <button class="btn-success" onclick="exportCustom('assignment', 'รายงานการส่งงาน', 'excel')">📊 Excel</button>
                         <button class="btn-primary" onclick="exportCustom('assignment', 'รายงานการส่งงาน', 'word')">📝 Word</button>
+                        <button class="btn-danger" style="background:#c0392b;" onclick="exportCustom('assignment', 'รายงานการส่งงาน', 'pdf')">📄 ส่งออก PDF</button>
                     </div>
                     <button class="btn-danger" style="background:#c0392b;" onclick="clearAllAssignments()">🗑️ ล้างประวัติส่งงานทั้งหมด</button>
                 </div>
@@ -530,6 +536,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('leaveGenderChart', 'กราฟเปรียบเทียบการลาชายหญิง')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('leaveGenderChart', 'กราฟเปรียบเทียบการลาชายหญิง')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('leaveGenderChart', 'กราฟเปรียบเทียบการลาชายหญิง')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="leaveGenderChart" style="max-height: 300px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -542,6 +549,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('leaveChart', 'กราฟสรุปการลารายบุคคล')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('leaveChart', 'กราฟสรุปการลารายบุคคล')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('leaveChart', 'กราฟสรุปการลารายบุคคล')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="leaveChart" style="max-height: 400px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -553,6 +561,7 @@
                 <div>
                     <button class="btn-success" onclick="exportExcel('leave-table', 'รายการใบลา')">📊 ส่งออก Excel</button>
                     <button class="btn-primary" style="background:#2980b9;" onclick="exportGenericTableToWord('leave-table', 'รายการใบลา')">📝 ส่งออก Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportGenericTableToPDF('leave-table', 'รายการใบลา')">📄 ส่งออก PDF</button>
                 </div>
                 <button class="btn-danger" style="background:#c0392b;" onclick="clearAllLeaves()">🗑️ ล้างใบลาทั้งหมด</button>
             </div>
@@ -582,6 +591,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('examGenderChart', 'กราฟเปรียบเทียบคะแนนสอบชายหญิง')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('examGenderChart', 'กราฟเปรียบเทียบคะแนนสอบชายหญิง')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('examGenderChart', 'กราฟเปรียบเทียบคะแนนสอบชายหญิง')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="examGenderChart" style="max-height: 300px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -595,6 +605,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('examChart', 'กราฟคะแนนสอบ')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('examChart', 'กราฟคะแนนสอบ')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('examChart', 'กราฟคะแนนสอบ')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="examChart" style="max-height: 400px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -619,6 +630,7 @@
                 <div>
                     <button class="btn-success" style="margin-bottom: 10px;" onclick="exportExcel('exam-table', 'คะแนนสอบ')">📊 ส่งออก Excel</button>
                     <button class="btn-primary" style="margin-bottom: 10px; background:#2980b9;" onclick="exportGenericTableToWord('exam-table', 'คะแนนสอบ')">📝 ส่งออก Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportGenericTableToPDF('exam-table', 'คะแนนสอบ')">📄 ส่งออก PDF</button>
                 </div>
                 <div style="overflow-x:auto;">
                     <table id="exam-table">
@@ -656,6 +668,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('gradeGenderChart', 'กราฟเปรียบเทียบเกรดชายหญิง')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('gradeGenderChart', 'กราฟเปรียบเทียบเกรดชายหญิง')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('gradeGenderChart', 'กราฟเปรียบเทียบเกรดชายหญิง')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="gradeGenderChart" style="max-height: 350px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -668,6 +681,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('gradeChart', 'กราฟสรุปเกรดรายบุคคล')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('gradeChart', 'กราฟสรุปเกรดรายบุคคล')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('gradeChart', 'กราฟสรุปเกรดรายบุคคล')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="gradeChart" style="max-height: 400px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -682,6 +696,7 @@
             <div>
                 <button class="btn-success" style="margin-bottom: 10px;" onclick="exportExcel('grade-table', 'สรุปเกรด')">📊 ส่งออก Excel</button>
                 <button class="btn-primary" style="margin-bottom: 10px; background:#2980b9;" onclick="exportGenericTableToWord('grade-table', 'สรุปเกรด')">📝 ส่งออก Word</button>
+                <button class="btn-danger" style="background:#c0392b;" onclick="exportGenericTableToPDF('grade-table', 'สรุปเกรด')">📄 ส่งออก PDF</button>
             </div>
             <div style="overflow-x:auto;">
                 <table id="grade-table" style="min-width:1000px;">
@@ -744,6 +759,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('activityGenderChart', 'กราฟเปรียบเทียบกิจกรรมชายหญิง')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('activityGenderChart', 'กราฟเปรียบเทียบกิจกรรมชายหญิง')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('activityGenderChart', 'กราฟเปรียบเทียบกิจกรรมชายหญิง')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="activityGenderChart" style="max-height: 300px; width:100%;"></canvas>
                 <div style="text-align:center; font-size:14px; margin-top:10px;">
@@ -756,6 +772,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('activityChart', 'กราฟสถิติแต่ละกิจกรรม')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('activityChart', 'กราฟสถิติแต่ละกิจกรรม')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('activityChart', 'กราฟสถิติแต่ละกิจกรรม')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="activityChart" style="max-height: 400px; width:100%;"></canvas>
             </div>
@@ -767,6 +784,7 @@
                     <div>
                         <button class="btn-success" onclick="exportCustom('activity', 'รายงานการเข้ากิจกรรม', 'excel')">📊 Excel</button>
                         <button class="btn-primary" style="background:#2980b9;" onclick="exportCustom('activity', 'รายงานการเข้ากิจกรรม', 'word')">📝 Word</button>
+                        <button class="btn-danger" style="background:#c0392b;" onclick="exportCustom('activity', 'รายงานการเข้ากิจกรรม', 'pdf')">📄 ส่งออก PDF</button>
                     </div>
                     <div><button class="btn-danger" style="background:#c0392b;" onclick="clearAllActivities()">🗑️ ล้างประวัติการเข้าร่วม</button></div>
                 </div>
@@ -818,6 +836,7 @@
                 <div style="margin-bottom:10px;">
                     <button class="btn-success" onclick="exportChartToExcel('eduChart', 'สถิตินักศึกษาครุศาสตร์')">📊 ส่งออกกราฟ Excel</button>
                     <button class="btn-primary" onclick="exportChartToWord('eduChart', 'สถิตินักศึกษาครุศาสตร์')">📝 ส่งออกกราฟ Word</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportChartToPDF('eduChart', 'สถิตินักศึกษาครุศาสตร์')">📄 ส่งออก PDF</button>
                 </div>
                 <canvas id="eduChart" style="max-height: 300px; width:100%;"></canvas>
             </div>
@@ -828,6 +847,7 @@
                 <div style="display:flex; gap:10px;">
                     <button class="btn-success" onclick="exportEduStudentsExcel()">📊 ส่งออก Excel (รายชื่อ)</button>
                     <button class="btn-primary" style="background:#2980b9;" onclick="exportEduStudentsWord()">📝 ส่งออก Word (รายชื่อ)</button>
+                    <button class="btn-danger" style="background:#c0392b;" onclick="exportEduStudentsPDF()">📄 ส่งออก PDF</button>
                 </div>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-danger" style="background:#e67e22;" onclick="deleteEduStudentsByYearUI()">🗑️ ลบตามปีการศึกษา</button>
@@ -5320,6 +5340,118 @@
         });
     }
 
+    // ===== PDF export via browser print: Thai glyphs preserved by browser =====
+    // User selects "Save as PDF" (or "บันทึกเป็น PDF") in print destination.
+    function biologyPdfEscape(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
+            '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+        })[ch]);
+    }
+
+    function biologyOpenPdfPrint(title, content, landscape = false) {
+        // Called synchronously from button click to avoid popup blockers.
+        const win = window.open('', '_blank', 'width=1050,height=800');
+        if (!win) {
+            Swal.fire('เปิดหน้าส่งออกไม่ได้', 'โปรดอนุญาต Pop-ups ในเบราว์เซอร์ แล้วกดส่งออก PDF อีกครั้ง', 'warning');
+            return;
+        }
+        const safeTitle = biologyPdfEscape(title);
+        const paper = landscape ? 'landscape' : 'portrait';
+        const page = `<!doctype html><html lang="th"><head><meta charset="UTF-8"><title>${safeTitle} - PDF</title>
+        <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+        @page {size: A4 ${paper}; margin: 12mm;}
+        * {box-sizing:border-box;}
+        body {font-family:'Sarabun',Tahoma,Arial,sans-serif;color:#243447;margin:0;padding:12px;}
+        h1 {font-size:20px;text-align:center;color:#117864;margin:10px 0 8px;}
+        .subtitle {text-align:center;font-size:11px;color:#64748b;margin:0 0 18px;}
+        table {width:100%;border-collapse:collapse;font-size:10px;table-layout:auto;}
+        th,td {border:1px solid #b7c5ce;padding:5px 6px;vertical-align:top;overflow-wrap:anywhere;white-space:normal;text-align:left;}
+        thead {display:table-header-group;}
+        th {background:#d9f1ea;color:#134e4a;font-weight:700;}
+        tbody tr {break-inside:avoid;page-break-inside:avoid;}
+        img.chart-pdf {display:block;width:100%;height:auto;max-height:220mm;object-fit:contain;margin:12px auto;}
+        .pdf-controls {margin:0 0 16px;text-align:center;padding:12px;background:#f1f5f9;border-radius:8px;}
+        .pdf-controls button {padding:10px 22px;border:0;border-radius:6px;background:#c0392b;color:white;cursor:pointer;font-family:inherit;font-size:15px;}
+        @media print {body{padding:0;} .pdf-controls{display:none!important;} -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        </style></head><body>
+        <div class="pdf-controls">เลือกเครื่องพิมพ์ <strong>Save as PDF / บันทึกเป็น PDF</strong> แล้วกดบันทึก
+        <div style="margin-top:8px"><button id="pdf-print-now" type="button">📄 พิมพ์ / บันทึกเป็น PDF</button></div></div>
+        <h1>${safeTitle}</h1>
+        <div class="subtitle">คณะวิทยาศาสตร์ มหาวิทยาลัยราชภัฏอุบลราชธานี</div>
+        ${content}</body></html>`;
+        win.document.open();
+        win.document.write(page);
+        win.document.close();
+        const runPrint = () => { try {win.focus();win.print();} catch(err){console.warn('PDF print:',err);} };
+        const printBtn = win.document.getElementById('pdf-print-now');
+        if (printBtn) printBtn.addEventListener('click', runPrint);
+        // Wait for fonts/images. Keep manual print button as fallback.
+        (async () => {
+            try {
+                await Promise.race([win.document.fonts.ready, new Promise(r => setTimeout(r, 5000))]);
+                await Promise.all(Array.from(win.document.images).map(img => img.complete ? Promise.resolve() :
+                    new Promise(resolve => { img.addEventListener('load', resolve, {once:true}); img.addEventListener('error',resolve,{once:true}); })));
+                if (!win.closed) runPrint();
+            } catch(e) { console.warn('PDF export:',e); }
+        })();
+    }
+
+    function exportChartToPDF(canvasId, title) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !canvas.width || !canvas.height) {
+            Swal.fire('ยังไม่มีกราฟ', 'กรุณาเปิดแท็บและรอให้กราฟแสดงก่อนส่งออก', 'warning');
+            return;
+        }
+        try {
+            const image = canvas.toDataURL('image/png');
+            biologyOpenPdfPrint(title, `<img class="chart-pdf" src="${image}" alt="กราฟ ${biologyPdfEscape(title)}">`, true);
+        } catch(e) { Swal.fire('ส่งออกไม่ได้', 'ไม่สามารถอ่านภาพกราฟได้: '+e.message, 'error'); }
+    }
+
+    function biologyCleanPrintableTable(tableID) {
+        const original = document.getElementById(tableID);
+        if (!original) throw new Error('ไม่พบตาราง '+tableID);
+        const clone = original.cloneNode(true);
+        const sourceControls = original.querySelectorAll('input,select,textarea');
+        const clonedControls = clone.querySelectorAll('input,select,textarea');
+        clonedControls.forEach((ctrl, i) => {
+            const src = sourceControls[i];
+            const text = document.createElement('span');
+            text.textContent = src ? (src.type === 'checkbox' ? (src.checked ? '✓' : '-') : src.value) : '';
+            ctrl.replaceWith(text);
+        });
+        const removeIndex = Array.from(clone.querySelectorAll('thead tr:first-child th'))
+          .map((th,i) => (/จัดการ|สถานะประกาศ/.test(th.textContent) ? i : -1)).filter(i=>i>=0).reverse();
+        clone.querySelectorAll('tr').forEach(tr => {
+            removeIndex.forEach(i => { if (tr.cells[i]) tr.deleteCell(i); });
+            tr.querySelectorAll('button').forEach(b => b.remove());
+        });
+        clone.removeAttribute('id');
+        return clone.outerHTML;
+    }
+
+    function exportGenericTableToPDF(tableID, filename) {
+        try { biologyOpenPdfPrint(filename, biologyCleanPrintableTable(tableID), true); }
+        catch(e) { Swal.fire('ส่งออกไม่ได้', e.message, 'error'); }
+    }
+
+    function exportEduStudentsPDF() {
+        const years = currentEduYear === 'all'
+            ? [...new Set(eduStudents.map(s=>s.year || 'ไม่ระบุปี'))].sort() : [currentEduYear];
+        const rows = [];
+        years.forEach(year => {
+            eduStudents.filter(s=>(s.year || 'ไม่ระบุปี')===year)
+              .sort((a,b)=>(parseInt(a.number)||999)-(parseInt(b.number)||999))
+              .forEach(s => rows.push([s.year||'-',s.number||'-',s.id,s.fname,s.lname,s.gender||'-',s.email]));
+        });
+        if (!rows.length) return Swal.fire('ไม่มีข้อมูล', 'ไม่มีรายชื่อนักศึกษาให้ส่งออก', 'warning');
+        const headers=['ปีการศึกษา','เลขที่','รหัสนักศึกษา','ชื่อ','นามสกุล','เพศ','อีเมล'];
+        const table=`<table><thead><tr>${headers.map(h=>`<th>${biologyPdfEscape(h)}</th>`).join('')}</tr></thead>
+         <tbody>${rows.map(row=>`<tr>${row.map(v=>`<td>${biologyPdfEscape(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+        biologyOpenPdfPrint('ทะเบียนนักศึกษาหลักสูตรครุศาสตร์ สาขาวิชาชีววิทยา',table,true);
+    }
+
     function exportChartToWord(canvasId, title) {
         let canvas = document.getElementById(canvasId);
         let imgData = canvas.toDataURL("image/png");
@@ -5453,6 +5585,15 @@
                 if(type === 'attendance') return { "เลขที่": stu?stu.number:'-', "ชื่อ-นามสกุล": r.name, "รายวิชา": r.subject, "เวลา": formatThaiDateTimeDisplay(r.date, r.timestamp), "สถานะ": r.attStatus || 'มาเรียน' };
                 else return { "เลขที่": stu?stu.number:'-', "ชื่อ-นามสกุล": r.name, "รายวิชา": r.subject, "ชื่องาน": r.detail, "เวลา": formatThaiDateTimeDisplay(r.date, r.timestamp), "คะแนน": r.score };
             });
+        }
+
+        if (format === 'pdf') {
+            if (!data.length) return Swal.fire('ไม่มีข้อมูล', 'ไม่มีข้อมูลให้ส่งออก', 'warning');
+            const headings = Object.keys(data[0]);
+            const html = `<table><thead><tr>${headings.map(h=>`<th>${biologyPdfEscape(h)}</th>`).join('')}</tr></thead><tbody>` +
+                data.map(row=>`<tr>${headings.map(h=>`<td>${biologyPdfEscape(row[h])}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
+            biologyOpenPdfPrint(filename, html, true);
+            return;
         }
 
         if(format === 'excel') {
