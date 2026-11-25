@@ -242,27 +242,6 @@
             <button class="btn-primary" style="background:#1abc9c;" onclick="showTeacherTab('t-activities')">🏕️ 9. กิจกรรม/อบรม</button>
             <button class="btn-info" style="background:#2980b9;" onclick="showTeacherTab('t-edu-students')">📘 10. ทะเบียนนักศึกษา ครุศาสตร์ สาขาชีววิทยา</button>
             <button id="manage-teachers-btn" class="btn-danger hidden" style="background:#c0392b;" onclick="manageTeachersUI()">⚙️ จัดการบัญชีผู้สอน</button>
-            <button class="btn-danger" onclick="logout()">🚪 ออก</button>
-        </div>
-
-        <!-- Supabase: เก็บข้อมูลบัญชีอาจารย์ที่ยืนยันตัวตนแล้วเท่านั้น -->
-        <div id="bio-supabase-panel" class="history-section" style="border-color:#27ae60;background:#f0fff5">
-            <h3>☁️ ฐานข้อมูลออนไลน์ Supabase (ใช้ร่วมกันทุกอุปกรณ์)</h3>
-            <p id="bio-supa-status" role="status">ยังไม่ได้เชื่อมต่อ Supabase — ข้อมูลในเครื่องยังคงอยู่</p>
-            <div class="flex-row">
-                <div class="form-group"><label>อีเมลบัญชี Supabase Auth</label><input id="bio-supa-email" type="email" autocomplete="username" placeholder="teacher@example.com"></div>
-                <div class="form-group"><label>รหัสผ่าน Supabase Auth</label><input id="bio-supa-password" type="password" autocomplete="current-password" placeholder="รหัสผ่าน"></div>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn-success" onclick="bioSupaConnect()">🔐 เชื่อมต่อฐานข้อมูล</button>
-                <button class="btn-primary" onclick="bioSupaPull(true)">⬇️ ดึงข้อมูลออนไลน์</button>
-                <button class="btn-warning" onclick="bioSupaPush(true)">⬆️ ส่งข้อมูลเครื่องนี้ขึ้นออนไลน์</button>
-                <button class="btn-info" onclick="bioSupaExport()">💾 สำรอง JSON</button>
-                <button class="btn-danger" onclick="bioSupaDisconnect()">ออกจาก Supabase</button>
-            </div>
-            <p style="font-size:12px;color:#53685b">ครั้งแรกต้องตั้งค่า SUPABASE_URL และ SUPABASE_PUBLISHABLE_KEY ในโค้ด และสร้างตารางจากไฟล์ supabase_setup.sql ก่อน • ห้ามใช้ service_role key ในเว็บไซต์ • สำรองข้อมูลก่อนดึงหรืออัปโหลด</p>
-        </div>
-
         <div id="t-students">
             <div class="history-section" style="border-color: #2ecc71;">
                 <h3>🌱 เพิ่มข้อมูลนักศึกษา</h3>
@@ -1192,7 +1171,7 @@
         // Firebase ไม่อนุญาต . # $ / [ ] ในชื่อ key เช่นอีเมลที่ใช้เป็น key ของ grades/exams
         // จึงเข้ารหัสเฉพาะ key ที่ Firebase ไม่รับ และถอดกลับตอนนักศึกษาอ่าน โดยไม่แก้ข้อมูลต้นฉบับ/Google Sheets
         const raw = {
-            students: students || [], records: records || [], leaves: leaves || [], subjects: subjects || [], rooms: rooms || [],
+            students: students || [], eduStudents: eduStudents || [], records: records || [], leaves: leaves || [], subjects: subjects || [], rooms: rooms || [],
             grades: grades || {}, exams: exams || {}, tasks: tasks || [], submissions: submissions || [],
             activities: activities || [], activityRecords: activityRecords || []
         };
@@ -1218,7 +1197,13 @@
             payload: getRealtimePayload()
         };
 
-        if (realtimeSyncRunning) return true;
+        if (realtimeSyncRunning) {
+            // Wait for the active queue to flush the latest snapshot before clearing the local-dirty flag.
+            for (let attempt = 0; attempt < 250 && realtimeSyncRunning; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return !realtimeSyncRunning && !realtimeLatestSnapshot;
+        }
         realtimeSyncRunning = true;
 
         try {
@@ -1249,6 +1234,87 @@
         }
     }
 
+    // ========== Automatic teacher-to-teacher sync (no extra buttons or passwords) ==========
+    // REQUIREMENT: Firebase RTDB rules must restrict /realtime/{teacher} to its own teacher auth identity.
+    // The Supabase table remains an independent backup; its Auth sessions are NOT inherited by other teachers.
+    // Firebase Auth is already established with the teacher's own credentials on login.
+    // Never upload an empty browser snapshot just because a phone signs in.
+    let bioTeacherSyncRef = null;
+    let bioTeacherSyncCallback = null;
+    let bioTeacherSyncAccount = null;
+    let bioTeacherLocalPending = false;
+    let bioTeacherWriteSequence = 0;
+    const bioTeacherLocalDataKey = account => `bio_sync_local_edit_${account}`;
+    function bioTeacherSnapshotHasContent(data) {
+        return !!data && (['students','eduStudents','records','leaves','tasks','submissions','activities','activityRecords']
+          .some(k => Array.isArray(data[k]) && data[k].length) ||
+          (data.grades && Object.keys(data.grades).length) ||
+          (data.exams && data.exams.scores && Object.keys(data.exams.scores).length));
+    }
+    function stopBioTeacherAutoSync() {
+        if (bioTeacherSyncRef && bioTeacherSyncCallback) bioTeacherSyncRef.off('value', bioTeacherSyncCallback);
+        bioTeacherSyncRef = null;
+        bioTeacherSyncCallback = null;
+        bioTeacherSyncAccount = null;
+    }
+    async function startBioTeacherAutoSync() {
+        stopBioTeacherAutoSync();
+        if (!firebaseDb || !firebaseAuth || !firebaseAuth.currentUser || !activeTeacherUsername || currentStudentEmail) return;
+        const account = activeTeacherUsername;
+        const expected = teacherFirebaseEmail(account, activeTeacherFirebaseAuthId);
+        if (firebaseAuth.currentUser.email !== expected) return;
+        bioTeacherSyncAccount = account;
+        bioTeacherSyncRef = firebaseDb.ref(`realtime/${account}`);
+        bioTeacherSyncCallback = snapshot => {
+            if (bioTeacherSyncAccount !== activeTeacherUsername || currentStudentEmail ||
+                document.getElementById('teacher-section').classList.contains('hidden')) return;
+            if (bioTeacherLocalPending) return; // don't replace an unsaved local edit
+            const remote = snapshot.val();
+            if (!remote) {
+                // New accounts: seed only a non-empty existing dataset, never an empty mobile cache.
+                if (bioTeacherSnapshotHasContent(appData[account])) firebaseSyncTeacherData().catch(console.warn);
+                return;
+            }
+            const decoded = firebaseRestorePayload(remote);
+            const lastLocalEdit = Number(localStorage.getItem(bioTeacherLocalDataKey(account)) || 0);
+            const serverModified = Number(decoded.updatedAt || 0);
+            if (lastLocalEdit && serverModified && lastLocalEdit > serverModified + 2000) {
+                // A local edit has not reached cloud yet, preserve it and retry sending.
+                bioTeacherLocalPending = true;
+                firebaseSyncTeacherData().then(ok => {
+                    if (ok) {
+                        localStorage.removeItem(bioTeacherLocalDataKey(account));
+                        bioTeacherLocalPending = false;
+                    }
+                }).catch(err => console.warn('Auto sync retry:',err));
+                return;
+            }
+            const keys = ['students','eduStudents','records','leaves','subjects','rooms',
+                          'grades','exams','tasks','submissions','activities','activityRecords'];
+            const next = {...(appData[account] || {})};
+            for (const key of keys) if (Object.prototype.hasOwnProperty.call(decoded,key)) next[key] = decoded[key];
+            // One safety copy per login/device before replacing a populated local snapshot.
+            const backupMark = `bio_sync_backup_done_${account}`;
+            if (!sessionStorage.getItem(backupMark) && bioTeacherSnapshotHasContent(appData[account])) {
+                try { localStorage.setItem(`bio_sync_backup_${account}`, JSON.stringify(appData[account])); }
+                catch (e) { console.warn('Local backup space insufficient:', e); }
+                sessionStorage.setItem(backupMark,'1');
+            }
+            appData[account] = next;
+            // Avoid saveToLocal() here: it can enqueue an outbound Supabase write.
+            try { localStorage.setItem('bio_app_data',JSON.stringify(appData)); }
+            catch(e) { console.warn('Cache storage full; cloud copy remains intact',e); }
+            loadSessionData(account);
+            updateDropdowns();
+            renderTeacherData();
+            const openTab = JSON.parse(localStorage.getItem(TEACHER_SESSION_KEY)||'null')?.tabId;
+            if (openTab) showTeacherTab(openTab);
+            localStorage.removeItem(bioTeacherLocalDataKey(account));
+            console.info('[Auto sync] Received latest teacher data:',account);
+        };
+        bioTeacherSyncRef.on('value', bioTeacherSyncCallback,
+            error => console.warn('Firebase auto sync permission/connection error:',error));
+    }
     function applyRealtimeStudentData(data) {
         if (!data || !activeTeacherUsername) return;
         data = firebaseRestorePayload(data);
@@ -1293,6 +1359,7 @@
             if (currentStudentEmail && activeTeacherUsername) {
                 startFirebaseStudentRealtime();
             } else if (activeTeacherUsername && firebaseAuth && firebaseAuth.currentUser) {
+                startBioTeacherAutoSync();
                 startFirebaseTeacherLeavesRealtime();
                 startFirebaseTeacherSubmissionsRealtime();
                 if (activeTeacherUsername === 'admin') startFirebaseTeacherAccountsRealtime();
@@ -1539,6 +1606,28 @@
     document.getElementById('scan-asn-date').valueAsDate = new Date();
     document.getElementById('act-date').valueAsDate = new Date();
 
+    // สิทธิ์แอดมินถูกตรวจซ้ำในฟังก์ชัน ไม่ใช่แค่ซ่อนปุ่มบนหน้าจอ
+    function bioSupaIsAdmin() {
+        return activeTeacherUsername === 'admin' && !currentStudentEmail &&
+            !document.getElementById('teacher-section').classList.contains('hidden');
+    }
+    function bioSupaUpdateAdminUI() {
+        const allowed = bioSupaIsAdmin();
+        const button = document.getElementById('bio-supabase-admin-btn');
+        const panel = document.getElementById('bio-supabase-panel');
+        if (button) button.classList.toggle('hidden', !allowed);
+        if (!allowed && panel) panel.classList.add('hidden');
+    }
+    function bioSupaToggleAdminPanel() {
+        if (!bioSupaIsAdmin()) return;
+        const panel = document.getElementById('bio-supabase-panel');
+        if (!panel) return;
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+            panel.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+    }
+
     // ========== Supabase cross-device backup/sync (teacher login required) ==========
     // ตั้งค่าจาก Supabase Project Settings > API; Publishable/anon key เป็น public key
     const SUPABASE_URL = 'https://ficccgakuciwkpzbhpwk.supabase.co';
@@ -1570,7 +1659,7 @@
             Object.keys(x.grades||{}).length || Object.keys(x.exams?.scores||{}).length));
     }
     function bioSupaExport() {
-        if (!activeTeacherUsername || currentStudentEmail) return;
+        if (!bioSupaIsAdmin()) return;
         saveToLocal();
         const blob=new Blob([JSON.stringify({teacher:activeTeacherUsername,exportedAt:new Date().toISOString(),data:bioSupaPayload()},null,2)],{type:'application/json'});
         const a=document.createElement('a');const u=URL.createObjectURL(blob);
@@ -1578,12 +1667,13 @@
         document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);
     }
     async function bioSupaGetUser() {
+        if (!bioSupaIsAdmin()) throw new Error('เฉพาะผู้ดูแลระบบเท่านั้น');
         if(!bioSupa) throw new Error('กรุณาตั้งค่า SUPABASE_URL และ SUPABASE_PUBLISHABLE_KEY ก่อน');
         const {data,error}=await bioSupa.auth.getUser();if(error || !data.user) throw new Error('กรุณาเข้าสู่ระบบ Supabase Auth ก่อน');
         return data.user;
     }
     async function bioSupaConnect() {
-        if (!activeTeacherUsername || currentStudentEmail) return;
+        if (!bioSupaIsAdmin()) return;
         try {
             if(!bioSupa) throw new Error('ยังไม่ได้กำหนด Supabase URL/Publishable Key ใน index.html');
             const email=document.getElementById('bio-supa-email').value.trim();
@@ -1598,6 +1688,7 @@
         } catch(e){bioSupaReadyTeacher=null;bioSupaStatus('เชื่อมต่อไม่สำเร็จ: '+e.message);}
     }
     async function bioSupaPull(ask=true) {
+        if (!bioSupaIsAdmin()) return false;
         try {
             const teacher=activeTeacherUsername;
             if(!teacher || currentStudentEmail) throw new Error('กรุณาเข้าระบบอาจารย์');
@@ -1624,6 +1715,7 @@
         }catch(e){bioSupaStatus('ดึงข้อมูลไม่สำเร็จ: '+e.message);return false;}
     }
     function bioSupaPush(ask=false) {
+        if (!bioSupaIsAdmin()) return Promise.resolve(false);
         const teacher=activeTeacherUsername;
         if(ask && !confirm('ส่งข้อมูลเครื่องนี้ขึ้น Supabase และแทนข้อมูลออนไลน์ของอาจารย์บัญชีนี้? กรุณาสำรอง JSON ก่อน')) return Promise.resolve(false);
         const payload=bioSupaPayload();
@@ -1651,20 +1743,23 @@
         return bioSupaSaving;
     }
     function bioSupaScheduleSave(){
+        if (!bioSupaIsAdmin()) return;
         if(bioSupaHydrating || !bioSupa || !activeTeacherUsername || currentStudentEmail || bioSupaReadyTeacher!==activeTeacherUsername) return;
         clearTimeout(bioSupaDebounce);
         bioSupaDebounce=setTimeout(()=>bioSupaPush(false),1100);
     }
     async function bioSupaDisconnect(){
+        if (!bioSupaIsAdmin()) return;
         bioSupaReadyTeacher=null;clearTimeout(bioSupaDebounce);
         if(bioSupa) await bioSupa.auth.signOut();
         bioSupaStatus('ออกจาก Supabase แล้ว ข้อมูลในเครื่องยังอยู่');
     }
     async function bioSupaRestoreSession(){
+        if (!bioSupaIsAdmin()) return;
         if(!bioSupa || !activeTeacherUsername || currentStudentEmail) return;
         try{
             const {data}=await bioSupa.auth.getSession();
-            if(data?.session){bioSupaReadyTeacher=activeTeacherUsername;await bioSupaPull(false);}
+            if(data?.session){bioSupaReadyTeacher=activeTeacherUsername;bioSupaStatus('Supabase backup connected in background');}
             else bioSupaStatus('ยังไม่เชื่อมต่อ Supabase • กรุณาเข้าสู่ระบบด้วยบัญชี Supabase Auth');
         }catch(e){bioSupaStatus('การคืนค่า Supabase ขัดข้อง: '+e.message);}
     }
@@ -1737,10 +1832,14 @@
                 document.getElementById('teacher-section').classList.remove('hidden');
                 const manageTeachersBtn = document.getElementById('manage-teachers-btn');
                 if (manageTeachersBtn) manageTeachersBtn.classList.toggle('hidden', teacherInfo.username !== 'admin');
+                bioSupaUpdateAdminUI();
                 const teacherTitle = document.querySelector('#teacher-section h2');
                 if (teacherTitle) teacherTitle.innerHTML = `👨‍🏫ระบบอาจารย์ผู้สอน ${teacherInfo.name} 🔬`;
                 updateDropdowns(); renderTeacherData();
                 bioSupaRestoreSession();
+                if (firebaseAuth) firebaseAuth.onAuthStateChanged(user => {
+                    if (user && activeTeacherUsername===teacherInfo.username && !currentStudentEmail) startBioTeacherAutoSync();
+                });
                 const savedTeacherTab = savedTeacherSession.tabId || localStorage.getItem('bio_teacher_active_tab_v1') || 't-students';
                 showTeacherTab(savedTeacherTab);
             }
@@ -1845,7 +1944,19 @@
     function saveToCloud() {
         saveToLocal();
         // Firebase ส่งข้อมูลที่นักศึกษาต้องเห็นแบบ Realtime; Google Sheets ยังคงบันทึกเหมือนเดิม
-        firebaseSyncTeacherData().catch(() => {});
+        if (activeTeacherUsername && !currentStudentEmail) {
+            const currentAccount=activeTeacherUsername;
+            localStorage.setItem(bioTeacherLocalDataKey(currentAccount),String(Date.now()));
+            bioTeacherLocalPending=true;
+            const seq=++bioTeacherWriteSequence;
+            firebaseSyncTeacherData().then(ok => {
+                if (ok && seq===bioTeacherWriteSequence && currentAccount===activeTeacherUsername) {
+                    localStorage.removeItem(bioTeacherLocalDataKey(currentAccount));
+                    bioTeacherLocalPending=false;
+                    // Listener receives the committed data (and subsequent edits from other devices).
+                }
+            }).catch(err => console.warn('Auto sync upload failed:',err));
+        }
         bioSupaScheduleSave();
         localStorage.setItem('bio_cloud_pending_v2', 'true');
 
@@ -2022,6 +2133,7 @@
 
         const manageTeachersBtn = document.getElementById('manage-teachers-btn');
         if (manageTeachersBtn) manageTeachersBtn.classList.toggle('hidden', found.username !== 'admin');
+        bioSupaUpdateAdminUI();
         
         let teacherTitle = document.querySelector('#teacher-section h2');
         if(teacherTitle) teacherTitle.innerHTML = `👨‍🏫ระบบอาจารย์ผู้สอน ${found.name} 🔬`;
@@ -2034,7 +2146,7 @@
         // งาน Firebase Auth / Cloud ทำเบื้องหลัง ไม่หน่วงการเข้าสู่หน้าระบบ
         ensureFirebaseAuth(teacherFirebaseEmail(found.username, activeTeacherFirebaseAuthId), teacherFirebasePassword(pass), true).then(async ok => {
             if (ok) {
-                if (!bioSupaConfigured) await firebaseSyncTeacherData();
+                await startBioTeacherAutoSync();
                 startFirebaseTeacherLeavesRealtime();
                 startFirebaseTeacherSubmissionsRealtime();
                 if (found.username === 'admin') startFirebaseTeacherAccountsRealtime();
@@ -2365,6 +2477,8 @@
         clearTimeout(bioSupaDebounce); bioSupaReadyTeacher=null;
         stopStudentCloudSync();
         stopFirebaseStudentRealtime();
+        stopBioTeacherAutoSync();
+        bioTeacherLocalPending=false;
         stopFirebaseTeacherLeavesRealtime();
         stopFirebaseTeacherSubmissionsRealtime();
         stopDeletedTeacherSessionRealtime();
@@ -2374,9 +2488,12 @@
         stopScanner(); currentStudentEmail = null; activeTeacherUsername = null;
         document.getElementById('teacher-section').classList.add('hidden'); document.getElementById('student-section').classList.add('hidden');
         document.getElementById('login-section').classList.remove('hidden');
+        bioSupaUpdateAdminUI();
     }
 
     function showTeacherTab(tabId) {
+        const adminPanel = document.getElementById('bio-supabase-panel');
+        if (adminPanel) adminPanel.classList.add('hidden');
         stopScanner();
         localStorage.setItem('bio_teacher_active_tab_v1', tabId);
         const teacherSession = JSON.parse(localStorage.getItem(TEACHER_SESSION_KEY) || 'null');
